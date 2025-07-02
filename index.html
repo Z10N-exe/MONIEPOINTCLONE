@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moniepoint Clone - Educational</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, Helvetica, Arial, sans-serif;
+            background-color: #F5F5F5;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 600px;
+        }
+        .page {
+            display: none;
+            padding: 20px;
+            min-height: 500px;
+        }
+        .page.active {
+            display: block;
+        }
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333333;
+        }
+        .input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #D3D3D3;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333333;
+            background-color: #F9F9F9;
+            box-sizing: border-box;
+        }
+        .input::placeholder {
+            color: #A0A0A0;
+        }
+        .button {
+            background-color: #6C2BD9;
+            color: #FFFFFF;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .link {
+            color: #6C2BD9;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .action-button {
+            background-color: #6C2BD9;
+            color: #FFFFFF;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            width: 23%;
+            cursor: pointer;
+        }
+        .transaction, .terminal {
+            padding: 12px;
+            border-bottom: 1px solid #E5E5E5;
+            font-size: 14px;
+        }
+        .list-item {
+            padding: 12px;
+            border-bottom: 1px solid #E5E5E5;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #FFFFFF;
+            border-top: 1px solid #E5E5E5;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .nav-item {
+            color: #6C2BD9;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .error {
+            color: #D32F2F;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 400px) {
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            .row {
+                flex-direction: column;
+            }
+            .action-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page -->
+        <div id="login" class="page active">
+            <h1>Welcome to Fintech App</h1>
+            <p id="login-error" class="error"></p>
+            <input type="text" class="input" id="login-phone" placeholder="Phone Number">
+            <input type="password" class="input" id="login-password" placeholder="Password">
+            <div class="button" onclick="handleLogin()">Login</div>
+            <a href="#" class="link" onclick="navigate('signup')">Create an Account</a>
+        </div>
+
+        <!-- Signup Page -->
+        <div id="signup" class="page">
+            <h1>Create Account</h1>
+            <p id="signup-error" class="error"></p>
+            <input type="text" class="input" id="signup-name" placeholder="Full Name">
+            <input type="text" class="input" id="signup-phone" placeholder="Phone Number">
+            <input type="text" class="input" id="signup-email" placeholder="Email Address">
+            <input type="password" class="input" id="signup-password" placeholder="Password">
+            <div class="button" onclick="handleSignup()">Sign Up</div>
+            <a href="#" class="link" onclick="navigate('login')">Back to Login</a>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <h1>Dashboard</h1>
+            <p style="font-size: 16px; margin-bottom: 20px;">Balance: <span id="balance">₦100,000</span></p>
+            <div class="row">
+                <div class="action-button" onclick="navigate('transfer')">Transfer</div>
+                <div class="action-button" onclick="navigate('bill-payment')">Pay Bills</div>
+                <div class="action-button" onclick="navigate('airtime')">Airtime</div>
+                <div class="action-button" onclick="navigate('loans')">Loans</div>
+            </div>
+            <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">Recent Transactions</h2>
+            <div id="transaction-list"></div>
+        </div>
+
+        <!-- Transfer Page -->
+        <div id="transfer" class="page">
+            <h1>Send Money</h1>
+            <p id="transfer-error" class="error"></p>
+            <select id="transfer-bank">
+                <option value="">Select Bank</option>
+                <option value="Access Bank">Access Bank</option>
+                <option value="GTBank">GTBank</option>
+                <option value="Zenith Bank">Zenith Bank</option>
+                <option value="Fintech App">Fintech App</option>
+            </select>
+            <input type="text" class="input" id="transfer-account" placeholder="Account Number">
+            <input type="text" class="input" id="transfer-amount" placeholder="Amount (₦)">
+            <input type="text" class="input" id="transfer-narration" placeholder="Narration (optional)">
+            <input type="text" class="input" id="transfer-email" placeholder="Recipient Email for Receipt">
+            <div class="button" onclick="handleTransfer()">Send</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- Receipt Page -->
+        <div id="receipt" class="page">
+            <h1>Transaction Receipt</h1>
+            <p style="font-size: 14px; margin-bottom: 10px;">Transaction ID: <span id="receipt-id"></span></p>
+            <p style="font-size: 14px; margin-bottom: 10px;">Bank: <span id="receipt-bank"></span></p>
+            <p style="font-size: 14px; margin-bottom: 10px;">Account Number: <span id="receipt-account"></span></p>
+            <p style="font-size: 14px; margin-bottom: 10px;">Amount: <span id="receipt-amount"></span></p>
+            <p style="font-size: 14px; margin-bottom: 10px;">Narration: <span id="receipt-narration"></span></p>
+            <p style="font-size: 14px; margin-bottom: 20px;">Date: <span id="receipt-date"></span></p>
+            <div class="button" onclick="alert('Receipt sent to email!')">Share Receipt</div>
+            <div class="button" onclick="navigate('dashboard')">Back to Home</div>
+        </div>
+
+        <!-- Bill Payment Page -->
+        <div id="bill-payment" class="page">
+            <h1>Pay Bills</h1>
+            <p id="bill-error" class="error"></p>
+            <select id="bill-biller">
+                <option value="">Select Biller</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Internet">Internet</option>
+                <option value="Cable TV">Cable TV</option>
+            </select>
+            <input type="text" class="input" id="bill-customer-id" placeholder="Customer ID">
+            <input type="text" class="input" id="bill-amount" placeholder="Amount (₦)">
+            <input type="text" class="input" id="bill-email" placeholder="Email for Receipt">
+            <div class="button" onclick="handleBillPayment()">Pay</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- Airtime Page -->
+        <div id="airtime" class="page">
+            <h1>Buy Airtime</h1>
+            <p id="airtime-error" class="error"></p>
+            <select id="airtime-network">
+                <option value="">Select Network</option>
+                <option value="MTN">MTN</option>
+                <option value="Glo">Glo</option>
+                <option value="Airtel">Airtel</option>
+            </select>
+            <input type="text" class="input" id="airtime-phone" placeholder="Phone Number">
+            <input type="text" class="input" id="airtime-amount" placeholder="Amount (₦)">
+            <input type="text" class="input" id="airtime-email" placeholder="Email for Receipt">
+            <div class="button" onclick="handleAirtime()">Buy</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- POS Terminal Page -->
+        <div id="pos" class="page">
+            <h1>POS Terminal</h1>
+            <h2 style="font-size: 16px; margin-bottom: 10px;">Terminal Status</h2>
+            <div id="terminal-list"></div>
+            <div class="button" onclick="handleNewTerminal()">Request New Terminal</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- Loans Page -->
+        <div id="loans" class="page">
+            <h1>Apply for Loan</h1>
+            <p id="loan-error" class="error"></p>
+            <input type="text" class="input" id="loan-amount" placeholder="Loan Amount (₦)">
+            <select id="loan-purpose">
+                <option value="">Loan Purpose</option>
+                <option value="Business Expansion">Business Expansion</option>
+                <option value="Personal Use">Personal Use</option>
+            </select>
+            <input type="text" class="input" id="loan-repayment" placeholder="Repayment Period (months)">
+            <div class="button" onclick="handleLoan()">Apply</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings" class="page">
+            <h1>Settings</h1>
+            <div class="list-item" onclick="navigate('edit-profile')">Edit Profile</div>
+            <div class="list-item" onclick="alert('Change PIN not implemented')">Change PIN</div>
+            <div class="list-item" onclick="alert('Notifications not implemented')">Notifications</div>
+            <div class="list-item" onclick="alert('Contact Support not implemented')">Contact Support</div>
+            <a href="#" class="link" onclick="navigate('dashboard')">Back to Dashboard</a>
+        </div>
+
+        <!-- Edit Profile Page -->
+        <div id="edit-profile" class="page">
+            <h1>Edit Profile</h1>
+            <p id="profile-error" class="error"></p>
+            <input type="text" class="input" id="profile-name" placeholder="Full Name">
+            <input type="text" class="input" id="profile-phone" placeholder="Phone Number">
+            <input type="text" class="input" id="profile-email" placeholder="Email Address">
+            <div class="button" onclick="handleProfileUpdate()">Save</div>
+            <a href="#" class="link" onclick="navigate('settings')">Back to Settings</a>
+        </div>
+
+        <!-- Bottom Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-item" onclick="navigate('dashboard')">Home</div>
+            <div class="nav-item" onclick="navigate('transfer')">Transfer</div>
+            <div class="nav-item" onclick="navigate('pos')">POS</div>
+            <div class="nav-item" onclick="navigate('settings')">Settings</div>
+        </div>
+    </div>
+
+    <script>
+        let user = JSON.parse(localStorage.getItem('user')) || null;
+        let balance = parseFloat(localStorage.getItem('balance')) || 100000;
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [
+            { id: 'TXN1', description: 'Transfer to GTBank', amount: '₦10,000', date: 'Jul 3, 2025', email: 'user@example.com' },
+            { id: 'TXN2', description: 'Airtime Purchase', amount: '₦500', date: 'Jul 2, 2025', email: 'user@example.com' }
+        ];
+        let terminals = JSON.parse(localStorage.getItem('terminals')) || [
+            { id: 'POS001', status: 'Active', lastTransaction: 'Jul 3, 2025' },
+            { id: 'POS002', status: 'Inactive', lastTransaction: 'Jul 1, 2025' }
+        ];
+
+        function navigate(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId === 'dashboard') updateDashboard();
+            if (pageId === 'pos') updateTerminals();
+            if (pageId === 'edit-profile' && user) {
+                document.getElementById('profile-name').value = user.name;
+                document.getElementById('profile-phone').value = user.phone;
+                document.getElementById('profile-email').value = user.email;
+            }
+        }
+
+        function updateDashboard() {
+            document.getElementById('balance').textContent = `₦${balance.toLocaleString()}`;
+            const transactionList = document.getElementById('transaction-list');
+            transactionList.innerHTML = transactions.map(t => `
+                <div class="transaction">
+                    <p>${t.description}</p>
+                    <p>${t.amount} • ${t.date}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateTerminals() {
+            const terminalList = document.getElementById('terminal-list');
+            terminalList.innerHTML = terminals.map(t => `
+                <div class="terminal">
+                    <p>Terminal ID: ${t.id}</p>
+                    <p>Status: ${t.status}</p>
+                    <p>Last Transaction: ${t.lastTransaction}</p>
+                </div>
+            `).join('');
+        }
+
+        function handleLogin() {
+            const phone = document.getElementById('login-phone').value;
+            const password = document.getElementById('login-password').value;
+            const error = document.getElementById('login-error');
+            if (!phone || !password) {
+                error.textContent = 'Please fill all fields';
+                return;
+            }
+            if (user && user.phone === phone && user.password === password) {
+                error.textContent = '';
+                navigate('dashboard');
+            } else {
+                error.textContent = 'Invalid credentials';
+            }
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('signup-name').value;
+            const phone = document.getElementById('signup-phone').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const error = document.getElementById('signup-error');
+            if (!name || !phone || !email || !password) {
+                error.textContent = 'Please fill all fields';
+                return;
+            }
+            user = { name, phone, email, password };
+            localStorage.setItem('user', JSON.stringify(user));
+            error.textContent = '';
+            alert('Account created!');
+            navigate('login');
+        }
+
+        async function sendReceipt(transaction) {
+            try {
+                const response = await fetch('http://localhost:3000/send-receipt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transaction)
+                });
+                if (response.ok) {
+                    alert('Receipt sent to email!');
+                } else {
+                    alert('Failed to send receipt');
+                }
+            } catch (error) {
+                console.error('Error sending receipt:', error);
+                alert('Error sending receipt');
+            }
+        }
+
+        async function handleTransfer() {
+            const bank = document.getElementById('transfer-bank').value;
+            const account = document.getElementById('transfer-account').value;
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+            const narration = document.getElementById('transfer-narration').value;
+            const email = document.getElementById('transfer-email').value;
+            const error = document.getElementById('transfer-error');
+            if (!bank || !account || !amount || !email) {
+                error.textContent = 'Please fill all required fields';
+                return;
+            }
+            if (amount > balance) {
+                error.textContent = 'Insufficient balance';
+                return;
+            }
+            balance -= amount;
+            const transaction = {
+                id: `TXN${Math.random().toString(36).substr(2, 9)}`,
+                description: `Transfer to ${bank}`,
+                amount: `₦${amount.toLocaleString()}`,
+                date: new Date().toLocaleString(),
+                email
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('balance', balance);
+            document.getElementById('receipt-id').textContent = transaction.id;
+            document.getElementById('receipt-bank').textContent = bank;
+            document.getElementById('receipt-account').textContent = account;
+            document.getElementById('receipt-amount').textContent = `₦${amount.toLocaleString()}`;
+            document.getElementById('receipt-narration').textContent = narration || 'N/A';
+            document.getElementById('receipt-date').textContent = transaction.date;
+            error.textContent = '';
+            await sendReceipt(transaction);
+            navigate('receipt');
+        }
+
+        async function handleBillPayment() {
+            const biller = document.getElementById('bill-biller').value;
+            const customerId = document.getElementById('bill-customer-id').value;
+            const amount = parseFloat(document.getElementById('bill-amount').value);
+            const email = document.getElementById('bill-email').value;
+            const error = document.getElementById('bill-error');
+            if (!biller || !customerId || !amount || !email) {
+                error.textContent = 'Please fill all required fields';
+                return;
+            }
+            if (amount > balance) {
+                error.textContent = 'Insufficient balance';
+                return;
+            }
+            balance -= amount;
+            const transaction = {
+                id: `TXN${Math.random().toString(36).substr(2, 9)}`,
+                description: `Bill Payment: ${biller}`,
+                amount: `₦${amount.toLocaleString()}`,
+                date: new Date().toLocaleString(),
+                email
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('balance', balance);
+            error.textContent = '';
+            await sendReceipt(transaction);
+            alert('Bill payment successful!');
+            navigate('dashboard');
+        }
+
+        async function handleAirtime() {
+            const network = document.getElementById('airtime-network').value;
+            const phone = document.getElementById('airtime-phone').value;
+            const amount = parseFloat(document.getElementById('airtime-amount').value);
+            const email = document.getElementById('airtime-email').value;
+            const error = document.getElementById('airtime-error');
+            if (!network || !phone || !amount || !email) {
+                error.textContent = 'Please fill all required fields';
+                return;
+            }
+            if (amount > balance) {
+                error.textContent = 'Insufficient balance';
+                return;
+            }
+            balance -= amount;
+            const transaction = {
+                id: `TXN${Math.random().toString(36).substr(2, 9)}`,
+                description: `Airtime: ${network}`,
+                amount: `₦${amount.toLocaleString()}`,
+                date: new Date().toLocaleString(),
+                email
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('balance', balance);
+            error.textContent = '';
+            await sendReceipt(transaction);
+            alert('Airtime purchase successful!');
+            navigate('dashboard');
+        }
+
+        function handleNewTerminal() {
+            terminals.push({
+                id: `POS${Math.random().toString(36).substr(2, 9)}`,
+                status: 'Pending',
+                lastTransaction: 'N/A'
+            });
+            localStorage.setItem('terminals', JSON.stringify(terminals));
+            updateTerminals();
+            alert('New terminal requested!');
+        }
+
+        function handleLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const purpose = document.getElementById('loan-purpose').value;
+            const repayment = document.getElementById('loan-repayment').value;
+            const error = document.getElementById('loan-error');
+            if (!amount || !purpose || !repayment) {
+                error.textContent = 'Please fill all required fields';
+                return;
+            }
+            error.textContent = '';
+            alert('Loan application submitted!');
+            navigate('dashboard');
+        }
+
+        function handleProfileUpdate() {
+            const name = document.getElementById('profile-name').value;
+            const phone = document.getElementById('profile-phone').value;
+            const email = document.getElementById('profile-email').value;
+            const error = document.getElementById('profile-error');
+            if (!name || !phone || !email) {
+                error.textContent = 'Please fill all fields';
+                return;
+            }
+            user.name = name;
+            user.phone = phone;
+            user.email = email;
+            localStorage.setItem('user', JSON.stringify(user));
+            error.textContent = '';
+            alert('Profile updated!');
+            navigate('settings');
+        }
+
+        // Initialize
+        if (user) navigate('dashboard');
+        updateDashboard();
+        updateTerminals();
+    </script>
+</body>
+</html>
